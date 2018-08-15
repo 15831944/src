@@ -56,6 +56,7 @@ BEGIN_MESSAGE_MAP(CFastDirOpenDlg, CDialogEx)
 END_MESSAGE_MAP()
 
 
+BOOL iIsMainWindowShow = TRUE;
 //[最小化]4.消息函数实现
 LRESULT CFastDirOpenDlg::OnMyShowTask(WPARAM wParam, LPARAM lParam){
 	
@@ -76,8 +77,15 @@ LRESULT CFastDirOpenDlg::OnMyShowTask(WPARAM wParam, LPARAM lParam){
 		break;
 	}
 
-	case WM_LBUTTONUP:                                 // 双击左键的处理
-		this->ShowWindow(SW_SHOWNORMAL);         // 显示主窗口
+	case WM_LBUTTONUP: // 击左键的处理
+		if(FALSE == iIsMainWindowShow){
+			this->ShowWindow(SW_SHOWNORMAL);         // 显示主窗口
+			iIsMainWindowShow = TRUE;
+		}
+		else{
+			this->ShowWindow(SW_HIDE);         // 隐藏主窗口
+			iIsMainWindowShow = FALSE;
+		}
 		break;
 	}
 	return 0;
@@ -423,6 +431,9 @@ void CFastDirOpenDlg::OnTimer(UINT_PTR uIDEvent){
 }
 
 
+/****************************************************
+功能：响应单击事件-具体是指响应remark修改的单击事件
+****************************************************/
 void CFastDirOpenDlg::OnNMClickListFastdir(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
