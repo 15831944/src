@@ -70,6 +70,7 @@ LRESULT CFastDirOpenDlg::OnMyShowTask(WPARAM wParam, LPARAM lParam){
 		CMenu menu;
 		menu.CreatePopupMenu();                    // 声明一个弹出式菜单
 		menu.AppendMenu(MF_STRING, WM_DESTROY, TEXT("关闭"));//右键菜单还可以这样
+		menu.AppendMenu(MF_STRING, WM_CLOSE, TEXT("取消"));//右键菜单还可以这样
 		menu.TrackPopupMenu(TPM_LEFTALIGN, lpoint->x, lpoint->y, this);
 		HMENU hmenu = menu.Detach();
 		menu.DestroyMenu();
@@ -83,7 +84,8 @@ LRESULT CFastDirOpenDlg::OnMyShowTask(WPARAM wParam, LPARAM lParam){
 			iIsMainWindowShow = TRUE;
 		}
 		else{
-			this->ShowWindow(SW_HIDE);         // 隐藏主窗口
+			SendMessage(WM_SYSCOMMAND, SC_MINIMIZE, 0);
+			//this->ShowWindow(SW_HIDE);         // 隐藏主窗口
 			iIsMainWindowShow = FALSE;
 		}
 		break;
