@@ -4,6 +4,7 @@
 
 #pragma once
 #include "afxcmn.h"
+#include "afxwin.h"
 
 
 #define WM_MY_SHOWTASK (WM_USER + 100) //[最小化]1.定义一个消息
@@ -41,7 +42,11 @@ private:
 	int m_iCurrentItem;//当前点击的行号
 	TCHAR m_szDefaultDir[DEFAULT_SIZE] = TEXT("c:\\users\\chris\\desktop");
 	
+	//CListCtrl与Clientwindow的边距
 	float m_left = 0, m_right = 0, m_top = 0, m_bottom = 0;
+
+	//当前点击的remark的行号
+	int m_iCurRemark = -1;
 
 	NOTIFYICONDATA m_nid;//[最小化]5.添加一个函数需要的变量
 
@@ -55,6 +60,8 @@ private:
 	void OnSize(UINT nType, int cx, int cy);
 	void ReSize(void);
 	void GetCurrentItemNum();
+	void OnTimer(UINT_PTR);
+	void OnGetEidtRemark(int nItem);
 
 	BOOL PreTranslateMessage(MSG* pMsg);
 	LRESULT WindowProc(UINT message, WPARAM wParam, LPARAM lParam);
@@ -72,4 +79,9 @@ public:
 	afx_msg void OnBnClickedButtonClearall();
 	afx_msg void OnRclickRemark();
 	afx_msg void OnLvnColumnclickListFastdir(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMClickListFastdir(NMHDR *pNMHDR, LRESULT *pResult);
+private:
+	CEdit m_CEditRemark;
+public:
+	afx_msg void OnEnKillfocusEditRemark();
 };

@@ -29,6 +29,7 @@ void CFastDirOpenDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_LIST_FASTDIR, m_FastDirList);
+	DDX_Control(pDX, IDC_EDIT_REMARK, m_CEditRemark);
 }
 
 BEGIN_MESSAGE_MAP(CFastDirOpenDlg, CDialogEx)
@@ -48,6 +49,10 @@ BEGIN_MESSAGE_MAP(CFastDirOpenDlg, CDialogEx)
 
 	ON_MESSAGE(WM_MY_SHOWTASK, OnMyShowTask)//[最小化]3.消息注册
 
+	ON_WM_TIMER()
+
+	ON_NOTIFY(NM_CLICK, IDC_LIST_FASTDIR, &CFastDirOpenDlg::OnNMClickListFastdir)
+	ON_EN_KILLFOCUS(IDC_EDIT_REMARK, &CFastDirOpenDlg::OnEnKillfocusEditRemark)
 END_MESSAGE_MAP()
 
 
@@ -115,10 +120,10 @@ BOOL CFastDirOpenDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
-	
-// TODO: 在此添加额外的初始化代码
+	//1. 初始化CListCtrl
 	InitDirList();
 
+	//2. 添加图标到系统托盘
 	//[最小化]6.调用Shell_NotifyIcon添加图标到系统托盘
 
 	m_nid.cbSize = (DWORD)sizeof(NOTIFYICONDATA);
@@ -132,6 +137,7 @@ BOOL CFastDirOpenDlg::OnInitDialog()
 
 	Shell_NotifyIcon(NIM_ADD, &m_nid);                // 在托盘区添加图标
 
+	//3. 获取边框大小
 	CRect ClientRect;
 	GetClientRect(&ClientRect);     //取客户区大小    
 
@@ -146,6 +152,10 @@ BOOL CFastDirOpenDlg::OnInitDialog()
 
 	m_right = -20;//ItemRect.right - ClientRect.right;
 	m_bottom = -20;//ItemRect.bottom - ClientRect.bottom;
+
+	//4. 构建remark编辑框
+	m_CEditRemark.ShowWindow(HIDE_WINDOW);
+	m_CEditRemark.EnableWindow(FALSE);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -343,8 +353,18 @@ void CFastDirOpenDlg::OnRclickRemark(){
 //如果不屏蔽这两个键，则按这两个键时会退出程序
 BOOL CFastDirOpenDlg::PreTranslateMessage(MSG* pMsg)
 {
-	//if (pMsg->message == WM_KEYDOWN   &&   pMsg->wParam == VK_ESCAPE)     return   TRUE; //为了退出方便，我该主意了，不屏蔽ESC了
-	if (pMsg->message == WM_KEYDOWN   &&   pMsg->wParam == VK_RETURN)   return   TRUE;
+	//if (pMsg->message == WM_KEYDOWN   &&   pMsg->wParam == VK_ESCAPE)     return   TRUE; //为了退出方便，我改主意了，不屏蔽ESC了
+	if (pMsg->message == WM_KEYDOWN   &&   pMsg->wParam == VK_RETURN){
+
+		if(m_CEditRemark.IsWindowEnabled()){//如果是修改备注回车，则修改备注
+			OnGetEidtRemark(m_iCurRemark);
+			m_iCurRemark = -1;
+			m_CEditRemark.ShowWindow(FALSE);
+			m_CEditRemark.EnableWindow(FALSE);
+		}
+
+		return   TRUE;
+	}
 	else
 		return   CDialog::PreTranslateMessage(pMsg);
 
@@ -392,4 +412,108 @@ void CFastDirOpenDlg::OnLvnColumnclickListFastdir(NMHDR *pNMHDR, LRESULT *pResul
 	WriteAllItems();
 
 	*pResult = 0;
+}
+
+
+//时间已过，remark不再等待修改
+void CFastDirOpenDlg::OnTimer(UINT_PTR uIDEvent){
+	KillTimer(REMARK_TIMER);
+	if(FALSE == m_CEditRemark.IsWindowEnabled())
+		m_iCurRemark = -1;
+}
+
+
+void CFastDirOpenDlg::OnNMClickListFastdir(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	*pResult = 0;
+
+	DWORD dwPos = GetMessagePos();
+	CPoint cPoint = {LOWORD(dwPos), HIWORD(dwPos)};
+
+	m_FastDirList.ScreenToClient(&cPoint);
+
+	LVHITTESTINFO lvinfo;
+	lvinfo.pt = cPoint;
+	lvinfo.flags = LVHT_ABOVE;
+
+	int nItem = m_FastDirList.SubItemHitTest(&lvinfo);
+
+	do{
+		if(nItem == -1){//没有获得行号
+			break;
+		}
+
+		if (lvinfo.iSubItem != REMARK_COL){//点击的不是备注列
+			break;
+		}
+
+		if (m_iCurRemark != nItem) {//点击了其他行，被点击的行进入等待状态
+
+			m_iCurRemark = nItem;
+			SetTimer(REMARK_TIMER, RM_WAIT_TIME, NULL);
+		}
+		else {
+			//0. 已经再次点击进入了修改状态就不必再计时了
+			KillTimer(REMARK_TIMER);
+
+			//1.设定编辑框的位置
+			CRect cEditRect;
+			CRect cListRect;
+			m_FastDirList.GetSubItemRect(nItem, REMARK_COL, LVIR_LABEL, cEditRect);//此处获得的是相对于m_FastDirList的位置，而movewindow使用的是相对于整个client的位置，所以还要进行变换
+			m_FastDirList.GetWindowRect(&cListRect);
+
+			ScreenToClient(&cListRect);
+			cEditRect.left += cListRect.left;
+			cEditRect.top += cListRect.top;
+			cEditRect.right += cListRect.left;
+			cEditRect.bottom += cListRect.top + 3;
+
+			//2. 编辑框最初显示的文字
+			TCHAR szOrgText[DEFAULT_SIZE] = {0};
+			m_FastDirList.GetItemText(nItem, REMARK_COL, szOrgText, DEFAULT_SIZE);
+			m_CEditRemark.SetWindowText(szOrgText);
+
+			//3.移动编辑框
+			m_CEditRemark.MoveWindow(cEditRect);
+			m_CEditRemark.EnableWindow(TRUE);
+			m_CEditRemark.ShowWindow(SW_SHOW);
+			m_CEditRemark.SetFocus();
+			m_CEditRemark.SetSel(-1);
+
+		}
+
+	}while(FALSE);
+
+	*pResult = 0;
+}
+
+
+/*******************************************
+功能：当备注编辑框编辑完成后，修改对应的remark，并且写一遍ini文件
+*******************************************/
+void CFastDirOpenDlg::OnGetEidtRemark(int nItem){
+
+	TCHAR szNewText[DEFAULT_SIZE] = { 0 };
+	m_CEditRemark.GetWindowText(szNewText, DEFAULT_SIZE);
+	if(_tcslen(szNewText))
+		m_FastDirList.SetItemText(nItem, REMARK_COL, szNewText);
+	else
+		m_FastDirList.SetItemText(nItem, REMARK_COL, TEXT("NULL"));
+
+	WriteAllItems();
+}
+
+
+/*********************************************
+功能：如果备注编辑框输入焦点消失，则认为编辑完成，修改备注和ini，将icurremark = -1
+*********************************************/
+void CFastDirOpenDlg::OnEnKillfocusEditRemark()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	OnGetEidtRemark(m_iCurRemark);
+	m_iCurRemark = -1;
+	m_CEditRemark.ShowWindow(FALSE);
+	m_CEditRemark.EnableWindow(FALSE);
 }

@@ -65,3 +65,7 @@ TCHAR * __cdecl tcsistr(
 #define PATH_COL 1
 #define STATUS_COL 2
 #define REMARK_COL 3
+
+//备注修改定时器
+#define REMARK_TIMER 1   //ID
+#define RM_WAIT_TIME 5000 //时间

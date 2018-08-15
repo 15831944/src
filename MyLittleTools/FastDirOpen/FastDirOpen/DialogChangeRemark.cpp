@@ -29,7 +29,7 @@ void CDialogChangeRemark::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CDialogChangeRemark, CDialogEx)
-	ON_BN_CLICKED(IDC_BUTTON_CHANGEREMARK, &CDialogChangeRemark::OnBnClickedButtonChangeremark)
+	ON_BN_CLICKED(IDC_EDIT_CHANEGREMARK, &CDialogChangeRemark::OnBnClickedButtonChangeremark)
 END_MESSAGE_MAP()
 
 
