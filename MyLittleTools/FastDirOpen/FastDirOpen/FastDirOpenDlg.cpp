@@ -56,10 +56,11 @@ BEGIN_MESSAGE_MAP(CFastDirOpenDlg, CDialogEx)
 END_MESSAGE_MAP()
 
 
-BOOL iIsMainWindowShow = TRUE;
 //[最小化]4.消息函数实现
 LRESULT CFastDirOpenDlg::OnMyShowTask(WPARAM wParam, LPARAM lParam){
 	
+	BOOL bIsWndMin = FALSE;
+
 	if (wParam != IDR_MAINFRAME)
 		return 1;
 	switch (lParam){
@@ -79,14 +80,13 @@ LRESULT CFastDirOpenDlg::OnMyShowTask(WPARAM wParam, LPARAM lParam){
 	}
 
 	case WM_LBUTTONUP: // 击左键的处理
-		if(FALSE == iIsMainWindowShow){
+		bIsWndMin = this->IsWindowVisible();
+		if(FALSE == bIsWndMin){
 			this->ShowWindow(SW_SHOWNORMAL);         // 显示主窗口
-			iIsMainWindowShow = TRUE;
 		}
 		else{
 			SendMessage(WM_SYSCOMMAND, SC_MINIMIZE, 0);
 			//this->ShowWindow(SW_HIDE);         // 隐藏主窗口
-			iIsMainWindowShow = FALSE;
 		}
 		break;
 	}
