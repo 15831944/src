@@ -5,7 +5,7 @@
 #pragma once
 #include "afxcmn.h"
 #include "afxwin.h"
-
+#include "CMyListCtrl.h"
 
 #define WM_MY_SHOWTASK (WM_USER + 100) //[最小化]1.定义一个消息
 
@@ -38,8 +38,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 	//-------------------------------------------------------------
 private:
-	int m_iRow;//总共多少行
-	int m_iCurrentItem;//当前点击的行号
 	TCHAR m_szDefaultDir[DEFAULT_SIZE] = TEXT("c:\\users\\chris\\desktop");
 	
 	//CListCtrl与Clientwindow的边距
@@ -50,8 +48,6 @@ private:
 
 	NOTIFYICONDATA m_nid;//[最小化]5.添加一个函数需要的变量
 
-	void InitDirList(); 
-	void AddOneDir(LPTSTR lpName, LPTSTR lpPath, LPTSTR lpRemark);
 	BOOL CheckRepeatDir(LPTSTR lpNewPath);
 	BOOL ClearInvaildDir();
 	BOOL ClearAllDir();
@@ -67,7 +63,7 @@ private:
 	LRESULT WindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 
 public:
-	CListCtrl m_FastDirList;
+	CMyListCtrl m_FastDirList;
 	int m_iCurrentCol;//排序时点击的列号
 
 	afx_msg void OnNMDBClickListFastdir(NMHDR *pNMHDR, LRESULT *pResult);
@@ -80,6 +76,8 @@ public:
 	afx_msg void OnRclickRemark();
 	afx_msg void OnLvnColumnclickListFastdir(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMClickListFastdir(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void CFastDirOpenDlg::OnDropFiles(HDROP hDropInfo);
+
 private:
 	CEdit m_CEditRemark;
 public:

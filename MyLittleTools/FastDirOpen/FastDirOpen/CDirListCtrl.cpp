@@ -125,7 +125,6 @@ void CFastDirOpenDlg::OnNMDBClickListFastdir(NMHDR *pNMHDR, LRESULT *pResult)
 	// TODO: 在此添加控件通知处理程序代码
 
 	TCHAR szDirPath[DEFAULT_SIZE] = { 0 };
-	TCHAR szDirStatus[DEFAULT_SIZE] = { 0 };
 
 	DWORD dwPos = GetMessagePos();
 	CPoint point(LOWORD(dwPos), HIWORD(dwPos));

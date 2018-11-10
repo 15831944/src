@@ -9,6 +9,7 @@
 
 #include "AddDirPath.h"
 #include "DialogChangeRemark.h"
+#include "ShowDirWindow.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -16,8 +17,6 @@
 
 
 // CFastDirOpenDlg 对话框
-
-
 
 CFastDirOpenDlg::CFastDirOpenDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(IDD_FASTDIROPEN_DIALOG, pParent)
@@ -50,6 +49,8 @@ BEGIN_MESSAGE_MAP(CFastDirOpenDlg, CDialogEx)
 	ON_MESSAGE(WM_MY_SHOWTASK, OnMyShowTask)//[最小化]3.消息注册
 
 	ON_WM_TIMER()
+
+	ON_WM_DROPFILES()//添加拖拽功能
 
 	ON_NOTIFY(NM_CLICK, IDC_LIST_FASTDIR, &CFastDirOpenDlg::OnNMClickListFastdir)
 	ON_EN_KILLFOCUS(IDC_EDIT_REMARK, &CFastDirOpenDlg::OnEnKillfocusEditRemark)
@@ -131,7 +132,7 @@ BOOL CFastDirOpenDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	//1. 初始化CListCtrl
-	InitDirList();
+	m_FastDirList.InitDirList();
 
 	//2. 添加图标到系统托盘
 	//[最小化]6.调用Shell_NotifyIcon添加图标到系统托盘
@@ -241,7 +242,7 @@ void CFastDirOpenDlg::OnRmenuAdd()
 		if(_tcslen(dlgAddDir.m_szRemark))
 			_tcscpy(szRemark, dlgAddDir.m_szRemark);
 		
-		AddOneDir(szName, szPath, szRemark);
+		m_FastDirList.AddOneDir(szName, szPath, szRemark);
 
 		break;
 	}
@@ -256,7 +257,7 @@ void CFastDirOpenDlg::OnBnClickedButtonUpdate()
 	// TODO: 在此添加控件通知处理程序代码
 	TCHAR szTemp[DEFAULT_SIZE] = {0};
 
-	for(int i = 0; i < m_iRow; i++){
+	for(int i = 0; i < m_FastDirList.m_iRow; i++){
 		m_FastDirList.GetItemText(i, PATH_COL, szTemp, DEFAULT_SIZE);
 
 		if(PathFileExists(szTemp)){
@@ -338,7 +339,7 @@ void CFastDirOpenDlg::OnRclickRemark(){
 
 	//1. 处理右键消息时已经将点击的item赋值了；如果现在Get则是“备注”所在item的行
 	//但右键信息不会进行合理性判断，所以这里要进行判断
-	if(m_iCurrentItem < 0 || m_iCurrentItem >= m_iRow){
+	if(m_FastDirList.m_iCurrentItem < 0 || m_FastDirList.m_iCurrentItem >= m_FastDirList.m_iRow){
 		::MessageBox(NULL, TEXT("不能点击不存在的item"), TEXT("CLICK ERR"), MB_ICONERROR | MB_OK);
 		return ;
 	}
@@ -347,10 +348,10 @@ void CFastDirOpenDlg::OnRclickRemark(){
 	while (IDOK == dlgChangeRemark.DoModal()) {
 
 		if (!_tcslen(dlgChangeRemark.m_szRemark)){
-			m_FastDirList.SetItemText(m_iCurrentItem, REMARK_COL, TEXT("NULL"));
+			m_FastDirList.SetItemText(m_FastDirList.m_iCurrentItem, REMARK_COL, TEXT("NULL"));
 		}
 		else
-			m_FastDirList.SetItemText(m_iCurrentItem, REMARK_COL, dlgChangeRemark.m_szRemark);
+			m_FastDirList.SetItemText(m_FastDirList.m_iCurrentItem, REMARK_COL, dlgChangeRemark.m_szRemark);
 
 		WriteAllItems();//这里偷懒了，修改完remark后直接重写了一遍ini文件
 
@@ -371,6 +372,25 @@ BOOL CFastDirOpenDlg::PreTranslateMessage(MSG* pMsg)
 			m_iCurRemark = -1;
 			m_CEditRemark.ShowWindow(FALSE);
 			m_CEditRemark.EnableWindow(FALSE);
+		}
+
+		else{//其他
+			int iFocusItem = m_FastDirList.GetSelectionMark();
+			if(iFocusItem >= 0){//如果回车时焦点在某个item上，就弹出该dir
+				TCHAR szDirPath[DEFAULT_SIZE] = { 0 };
+				
+				m_FastDirList.m_iCurrentItem = iFocusItem;
+				m_FastDirList.GetItemText(m_FastDirList.m_iCurrentItem, PATH_COL, szDirPath, DEFAULT_SIZE);
+				
+				if (PathFileExists(szDirPath)){
+					ShowDirAlways(szDirPath);
+					m_FastDirList.SetItemText(m_FastDirList.m_iCurrentItem, STATUS_COL, TEXT("可用"));
+				}
+				else {
+					m_FastDirList.SetItemText(m_FastDirList.m_iCurrentItem, STATUS_COL, TEXT("不可用"));
+				}
+
+			}
 		}
 
 		return   TRUE;
@@ -411,7 +431,7 @@ void CFastDirOpenDlg::OnLvnColumnclickListFastdir(NMHDR *pNMHDR, LRESULT *pResul
 	m_iCurrentCol = pNMLV->iSubItem;//点击的列
 
 	//2. 设置item绑定的data(其实不知道为什么这样做)
-	for(int i = 0; i < m_iRow; i++){
+	for(int i = 0; i < m_FastDirList.m_iRow; i++){
 		m_FastDirList.SetItemData(i, i);
 	}
 
@@ -519,6 +539,46 @@ void CFastDirOpenDlg::OnGetEidtRemark(int nItem){
 }
 
 
+/*****************************************
+功能：清理不可用文件夹
+*****************************************/
+BOOL CFastDirOpenDlg::ClearInvaildDir() {
+
+	BOOL bRet = TRUE;
+	TCHAR szTemp[DEFAULT_SIZE] = { 0 };
+	int iCount = m_FastDirList.m_iRow;
+
+	for (int i = iCount - 1; i >= 0; i--) {//这里必须倒着来，因为每删除一个item，剩余的item就会自动移动。eg:删除了0，则1-8就变成0-7,原来的8变成了7，再删除8就得deleteitem(7)
+		m_FastDirList.GetItemText(i, PATH_COL, szTemp, DEFAULT_SIZE);
+		if (!PathFileExists(szTemp)) {
+			m_FastDirList.DeleteItem(i);
+			m_FastDirList.m_iRow--;
+		}
+	}
+
+	return bRet;
+}
+
+
+/*****************************************
+功能：删除所有item
+*****************************************/
+BOOL CFastDirOpenDlg::ClearAllDir() {
+
+	BOOL bRet = TRUE;
+	TCHAR szTemp[DEFAULT_SIZE] = { 0 };
+	int iCount = m_FastDirList.m_iRow;//;
+
+	for (int i = iCount - 1; i >= 0; i--) {
+		m_FastDirList.DeleteItem(i);
+	}
+
+	m_FastDirList.m_iRow = 0;
+
+	return bRet;
+}
+
+
 /*********************************************
 功能：如果备注编辑框输入焦点消失，则认为编辑完成，修改备注和ini，将icurremark = -1
 *********************************************/
@@ -529,4 +589,28 @@ void CFastDirOpenDlg::OnEnKillfocusEditRemark()
 	m_iCurRemark = -1;
 	m_CEditRemark.ShowWindow(FALSE);
 	m_CEditRemark.EnableWindow(FALSE);
+}
+
+
+/************************************
+功能：响应FastDir窗口的文件拖拽消息，支持多文件拖拽,CFastDirOpenDlg窗口的
+参数：拖拽消息的信息
+返回值：无
+************************************/
+void CFastDirOpenDlg::OnDropFiles(HDROP hDropInfo)
+{
+	if (hDropInfo)
+	{
+		TCHAR szFilePath[DEFAULT_SIZE] = { 0 };
+		int nDrag = DragQueryFile(hDropInfo, -1, NULL, 0);//获取一共拖拽的文件的个数
+
+		for (int i = 0; i < nDrag; i++) {
+			RtlZeroMemory(szFilePath, DEFAULT_SIZE);
+			DragQueryFile(hDropInfo, i, szFilePath, 1024);//获得第一个文件的路径m_szFilePath，返回路径长度
+														  //MessageBox(TEXT(""), szFilePath, 0);
+			m_FastDirList.AddOneDir(_tcsrchr(szFilePath, TEXT('\\')) + 1, szFilePath, TEXT("NULL"));
+		}
+	}
+
+	DragFinish(hDropInfo);
 }

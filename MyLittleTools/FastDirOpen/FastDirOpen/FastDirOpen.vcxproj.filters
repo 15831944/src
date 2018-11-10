@@ -45,6 +45,9 @@
     <ClInclude Include="DialogChangeRemark.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CMyListCtrl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FastDirOpen.cpp">
@@ -59,9 +62,6 @@
     <ClCompile Include="ShowDirWindow.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CDirListCtrl.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Common.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -72,6 +72,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="DialogChangeRemark.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CMyListCtrl.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DirListCtrlFunc.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
