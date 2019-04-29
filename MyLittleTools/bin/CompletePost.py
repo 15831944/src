@@ -16,7 +16,7 @@ def GenFilePath(file_path):
         
     #2.add time
     if tup ==None:
-        ret_name = ("%d-%d-%d-"%(datetime.datetime.now().year, datetime.datetime.now().month, datetime.datetime.now().day)) + os.path.basename(file_path)
+        ret_name = ("%d-%02d-%02d-"%(datetime.datetime.now().year, datetime.datetime.now().month, datetime.datetime.now().day)) + os.path.basename(file_path)
     else:
         ret_name = os.path.basename(file_path)
 
@@ -26,7 +26,7 @@ def GenFilePath(file_path):
     return ret_path
 
 def SetCateTag():
-    cate = input("input the cate of the file:\n")
+    cate = input("input the cate of the file（if exe in python2, need \"\"）:\n")
     tags = input("input the tag of the file:\n")
     return cate,tags
 
@@ -87,7 +87,7 @@ for roots, dirs, files in os.walk(dir_path):
     for item in files:
         if os.path.splitext(item)[1] == ".md":
             print ("The File is : " + item)
-            in_str = input("If change it:")
+            in_str = input("If change it(0 for NO):")
             if in_str == "0" or in_str == 0:
                 print("Not to deal with it temporarily\n")
                 continue
