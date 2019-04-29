@@ -364,7 +364,14 @@ void CFastDirOpenDlg::OnRclickRemark(){
 //如果不屏蔽这两个键，则按这两个键时会退出程序
 BOOL CFastDirOpenDlg::PreTranslateMessage(MSG* pMsg)
 {
+	int iFocusItem = 0;
 	//if (pMsg->message == WM_KEYDOWN   &&   pMsg->wParam == VK_ESCAPE)     return   TRUE; //为了退出方便，我改主意了，不屏蔽ESC了
+	if (pMsg->message == WM_KEYDOWN   &&   pMsg->wParam == VK_DELETE){
+		iFocusItem = m_FastDirList.GetSelectionMark();
+		m_FastDirList.m_iCurrentItem = iFocusItem;
+		DeleteOneItem();
+	}
+
 	if (pMsg->message == WM_KEYDOWN   &&   pMsg->wParam == VK_RETURN){
 
 		if(m_CEditRemark.IsWindowEnabled()){//如果是修改备注回车，则修改备注
@@ -375,7 +382,7 @@ BOOL CFastDirOpenDlg::PreTranslateMessage(MSG* pMsg)
 		}
 
 		else{//其他
-			int iFocusItem = m_FastDirList.GetSelectionMark();
+			iFocusItem = m_FastDirList.GetSelectionMark();
 			if(iFocusItem >= 0){//如果回车时焦点在某个item上，就弹出该dir
 				TCHAR szDirPath[DEFAULT_SIZE] = { 0 };
 				
