@@ -15,6 +15,10 @@
 #define new DEBUG_NEW
 #endif
 
+#pragma comment(linker, "/SECTION:.SHARE,RWS")
+#pragma data_seg(".SHARE")
+BOOL bAlreadyStart = FALSE;
+#pragma data_seg()
 
 // CFastDirOpenDlg ¶Ô»°¿ò
 
@@ -22,6 +26,14 @@ CFastDirOpenDlg::CFastDirOpenDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(IDD_FASTDIROPEN_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+
+	if(bAlreadyStart == TRUE){
+		MessageBox(TEXT("The program is already running."), TEXT("FastDirOpen-Err"), 0);
+		TerminateProcess(GetCurrentProcess(),0);
+	}
+	else{
+		bAlreadyStart = TRUE;
+	}
 }
 
 void CFastDirOpenDlg::DoDataExchange(CDataExchange* pDX)
