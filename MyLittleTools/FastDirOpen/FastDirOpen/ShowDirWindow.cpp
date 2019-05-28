@@ -196,3 +196,16 @@ BOOL ShowDirAlways(LPTSTR szPath) {
 	return bRet;
 }
 
+
+/*********************************
+功能：当已有其他实例在运行时，弹出该实例的窗口
+*********************************/
+void ShowMyBrother(LPTSTR lpWndName){
+
+	TCHAR szPath[MAX_PATH] = { 0 };
+	TCHAR *pszWindowName = NULL;
+
+	GetModuleFileName(NULL, szPath, MAX_PATH);
+	pszWindowName = _tcsrchr(szPath, TEXT('\\'));
+	ShowTargetWnd(pszWindowName + 1, lpWndName);
+}

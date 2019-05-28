@@ -84,7 +84,7 @@
     <LinkIncremental>false</LinkIncremental>
     <EmbedManifest>true</EmbedManifest>
     <GenerateManifest>true</GenerateManifest>
-    <TargetName>$(ProjectName)_v2.0</TargetName>
+    <TargetName>$(ProjectName)_v2.1</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>

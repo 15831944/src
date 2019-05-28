@@ -29,6 +29,9 @@ CFastDirOpenDlg::CFastDirOpenDlg(CWnd* pParent /*=NULL*/)
 
 	if(bAlreadyStart == TRUE){
 		MessageBox(TEXT("The program is already running."), TEXT("FastDirOpen-Err"), 0);
+		//
+		ShowMyBrother(TEXT("CH·FastDirOpen"));
+
 		TerminateProcess(GetCurrentProcess(),0);
 	}
 	else{
@@ -464,7 +467,9 @@ void CFastDirOpenDlg::OnLvnColumnclickListFastdir(NMHDR *pNMHDR, LRESULT *pResul
 }
 
 
-//时间已过，remark不再等待修改
+/****************************************************
+功能：两次点击修改remark的定时器，时间已过，remark不再等待修改
+****************************************************/
 void CFastDirOpenDlg::OnTimer(UINT_PTR uIDEvent){
 	KillTimer(REMARK_TIMER);
 	if(FALSE == m_CEditRemark.IsWindowEnabled())

@@ -7,13 +7,13 @@
   DialogChangeRemark.cpp
   FastDirOpen.cpp
   FastDirOpenDlg.cpp
-FastDirOpenDlg.cpp(322): warning C4244: “=”: 从“float”转换到“LONG”，可能丢失数据
-FastDirOpenDlg.cpp(323): warning C4244: “=”: 从“float”转换到“LONG”，可能丢失数据
 FastDirOpenDlg.cpp(325): warning C4244: “=”: 从“float”转换到“LONG”，可能丢失数据
 FastDirOpenDlg.cpp(326): warning C4244: “=”: 从“float”转换到“LONG”，可能丢失数据
+FastDirOpenDlg.cpp(328): warning C4244: “=”: 从“float”转换到“LONG”，可能丢失数据
+FastDirOpenDlg.cpp(329): warning C4244: “=”: 从“float”转换到“LONG”，可能丢失数据
   ShowDirWindow.cpp
 ShowDirWindow.cpp(182): warning C4101: “pi”: 未引用的局部变量
   正在生成代码
-  All 312 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  All 313 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   已完成代码的生成
-  FastDirOpen.vcxproj -> F:\22. LIFE GAME\myblog\src\MyLittleTools\FastDirOpen\Release\FastDirOpen_v2.0.exe
+  FastDirOpen.vcxproj -> F:\22. LIFE GAME\myblog\src\MyLittleTools\FastDirOpen\Release\FastDirOpen_v2.1.exe
