@@ -1,3 +1,4 @@
+
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
@@ -16,7 +17,7 @@ def GenFilePath(file_path):
         
     #2.add time
     if tup ==None:
-        ret_name = ("%d-%d-%d-"%(datetime.datetime.now().year, datetime.datetime.now().month, datetime.datetime.now().day)) + os.path.basename(file_path)
+        ret_name = ("%d-%02d-%02d-"%(datetime.datetime.now().year, datetime.datetime.now().month, datetime.datetime.now().day)) + os.path.basename(file_path)
     else:
         ret_name = os.path.basename(file_path)
 
@@ -26,7 +27,7 @@ def GenFilePath(file_path):
     return ret_path
 
 def SetCateTag():
-    cate = input("input the cate of the file:\n")
+    cate = input("input the cate of the file（if exe in python2, need \"\"）:\n")
     tags = input("input the tag of the file:\n")
     return cate,tags
 
@@ -48,15 +49,38 @@ def GenFileFront(filename, cate, tags):
     
     return front
 
+#判断是否是残缺的图片路径
+def CheckImagePath(in_str):
+    if "图" in item and "Snipaste" in in_str:
+        if "https://chrishuppor.github.io/image/" in in_str:
+            return False
+        else:
+            return True
+    else:
+        return False
+
 #将文件头写入文件（没有考虑已经有文件头的情况）
-def AddFileFront(file_path, front):
+def FormNewFile(file_path, front):
     fr = open(file_path, "r", encoding = "UTF-8")
-    rt = fr.read()
+    rt = fr.readlines()
     fr.close()
 
     fw = open(file_path, "w", encoding = "UTF-8")
     fw.write(front + "\n\r")
-    fw.write(rt)
+
+    digest_over = 0
+    for item in rt:
+        if "#" in item and digest_over == 0:
+                digest_over = 1
+                fw.write("\n\r" + item)
+                continue
+
+        if True == CheckImagePath(item):
+            newline = item[:pos] + "https://chrishuppor.github.io/image/" + item[pos:]
+            fw.write(newline)
+            continue
+
+        fw.write(item)
     fw.close()
 
 #完成post格式的文件并放入_posts文件夹中
@@ -66,7 +90,7 @@ def CompletePostFile(file_path):
     front = GenFileFront(os.path.basename(file_path), cate, tags)
     print("The Front is:\n" + front)
     
-    AddFileFront(file_path, front)
+    FormNewFile(file_path, front)
     
     new_path = GenFilePath(file_path)
     if file_path != new_path:
@@ -78,7 +102,7 @@ dir_path = ""
 if len(sysin) == 2:
     dir_path = sysin[1]
 else:
-    print ("The default dir is F:\22. LIFE GAME\myblog\chrishuppor.github.io\_drafts")
+    print ("The default dir is F:\\22. LIFE GAME\\myblog\\chrishuppor.github.io\\_drafts")
     dir_path = "F:\\22. LIFE GAME\\myblog\\chrishuppor.github.io\\_drafts"
 
 print("The base path is : " + dir_path)
@@ -87,7 +111,7 @@ for roots, dirs, files in os.walk(dir_path):
     for item in files:
         if os.path.splitext(item)[1] == ".md":
             print ("The File is : " + item)
-            in_str = input("If change it:")
+            in_str = input("If change it(0 for NO):")
             if in_str == "0" or in_str == 0:
                 print("Not to deal with it temporarily\n")
                 continue
