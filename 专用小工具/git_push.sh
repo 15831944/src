@@ -18,5 +18,5 @@ then
 fi
 
 git add .
-git commit -m $commitMes
+git commit -m '$commitMes'
 git push origin master
