@@ -11,7 +11,7 @@ else
 	exit
 fi
 
-commitMes = 'update'
+commitMes='update'
 if [[ $2 != '' ]];
 then
 	$commitMes = $2
