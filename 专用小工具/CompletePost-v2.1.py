@@ -51,7 +51,7 @@ def GenFileFront(filename, cate, tags):
 
 #判断是否是残缺的图片路径
 def CheckImagePath(in_str):
-    if "图" in item and "Snipaste" in in_str:
+    if "图" in in_str and "Snipaste" in in_str:
         if "https://chrishuppor.github.io/image/" in in_str:
             return False
         else:
@@ -66,16 +66,17 @@ def FormNewFile(file_path, front):
     fr.close()
 
     fw = open(file_path, "w", encoding = "UTF-8")
-    fw.write(front + "\n\r")
+    fw.write(front + "\n")
 
     digest_over = 0
     for item in rt:
-        if "#" in item and digest_over == 0:
+        if item[0] == "#" and digest_over == 0:
                 digest_over = 1
-                fw.write("\n\r" + item)
+                fw.write("\n" + item)
                 continue
 
         if True == CheckImagePath(item):
+            pos = item.index("Snipaste")
             newline = item[:pos] + "https://chrishuppor.github.io/image/" + item[pos:]
             fw.write(newline)
             continue
