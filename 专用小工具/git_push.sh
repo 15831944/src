@@ -1,9 +1,20 @@
 #!/bin/bash
 
+function GetRandom(){
+	min=10;
+    max=20;
+    num=$(date +%s+%N);
+    ((retnum=num%max+min));
+    return $retnum;
+}
+
 function PushTenTimes()
 {
 	cd "F:\\22. LIFE GAME\\myblog\\chrishuppor.github.io"
-	for ((i=1;i<=10;i++))
+	GetRandom
+	PushTime=$?
+	echo "will push $PushTime times"
+	for ((i=1;i<=$PushTime;i++))
 	do
 		fullpath="F:\\22. LIFE GAME\\myblog\\chrishuppor.github.io\\_drafts\\helloworld.txt"
 		echo $i >> "$fullpath"
