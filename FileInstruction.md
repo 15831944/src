@@ -9,9 +9,7 @@ All My Little Tools
 
 所有小工具的源码获取地址： [https://github.com/chrishuppor/src/tree/master/MyLittleTools](https://github.com/chrishuppor/src/tree/master/MyLittleTools)
 
-所有小工具的可执行程序获取地址：[https://github.com/chrishuppor/src/tree/master/MyLittleTools/bin](https://github.com/chrishuppor/src/tree/master/MyLittleTools/bin)
-
-以下带*的工具仅为本人机器开发，即src下的“专用小工具”
+小工具的可执行程序获取地址：[https://github.com/chrishuppor/src/tree/master/MyLittleTools/bin](https://github.com/chrishuppor/src/tree/master/MyLittleTools/bin)
 
 # FormatErrCode
 
@@ -79,46 +77,6 @@ PS>点解会有呢个程序嚟？还不是因为windows的快速访问太烂，�
   * 计算：点击Calc按键，如果是文件则支持回车进行计算
 * （MFC源码丢失，只保存了console版源码）
 
-# bilibili弹幕删减脚本*
-
-* 操作：
-  1. 输入本地弹幕路径
-  2. 根据提示选择保留该弹幕还是删除该条弹幕，如果没有保留上一条弹幕但现在后悔了，则可以输入2表明自己很2，然后就重新保留上一条弹幕了
-
-* 结果：将删减后的结果保存在<name>.xml文件同目录的<name_reduced>.xml文件中
-
-# CompletePost-v2
-
-* 目的：按照jeklly搭建的博客的post文件格式编写文件不符合正常的文件编写习惯，所以用这个py来将“正常”编写的draft完善成post
-* 操作：python3将_drafts文件夹拖到本py上
-* 结果：将已经编好名字和内容的md文件完善成jeklly搭建的博客post文件的格式，并添加到_posts文件夹中
-* 更新
-  * 内容
-    * 修复了无法区分摘要和正文的BUG——之前生成的post文件上传到博客后，摘要和正文混做一片。
-    * 添加了自动补全image路径的功能。
-  * 时间
-    * 2019-05-30
-
-# UpdatePostTime*
-
-- 目的：博文写完了之后不是一成不变的，总会修修补补。修补完了之后肯定希望文件中与时间相关的信息能够更新，但手动修改又会破坏写博文的流畅体验，所以用这个py来自动将文件中时间相关信息修改为文档的更新时间。
-
-  但是有些文件只是修改了分类，不希望更新这样的文件的时间。而经常修补的文件只有一小部分，因此在本py中手动维护一个更新文件列表。
-
-- 操作：python3下直接运行
-
-- 结果：将更新列表中的post文件时间相关字符串替换为最新的时间，并将该文件的创建时间修改为更新时间。
-
-# easy_retrieve_vblog
-
-* 目的：通过奔跑吧官微获取MC外嘉宾名单
-* 操作：python3下运行
-* 结果：输出爬取进度并输出最近几期的嘉宾名单
-
-# git_push.sh*
-
-* 目的：不想每次更新本地repo时都要等待指令完成再输入下一条指令
-
 # spell_with_pic.py
 
 * 功能：获取微信好友头像并拼成指定汉字
@@ -135,3 +93,7 @@ PS>点解会有呢个程序嚟？还不是因为windows的快速访问太烂，�
 # PrintFileInfoList
 
 * 功能：输出文件夹中文件列表到文件中，同时输出文件的时间信息
+
+# EasyTreeHole
+
+* 功能：简易文本透明加密工具。加密后的文本只能使用本软件和对应的密码打开。
