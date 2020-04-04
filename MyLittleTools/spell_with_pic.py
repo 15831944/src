@@ -1,4 +1,4 @@
-#!/usr/bin/python
+﻿#!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
 from PIL import Image
@@ -74,7 +74,7 @@ def get_wechat_profile_photo(save_dir):
 	itchat.auto_login()
 
 	try:
-		#获取微信好友信息列表
+		#获取微信好友信息
 		friendList = itchat.get_friends(update=True)
 		friend_count = len(friendList)
 		print ('[+]You have %d friends in all'%(friend_count))
